@@ -1,0 +1,5 @@
+* About this repo
+
+  This repo is for hosting the github pages for my school project.
+  It's a simple spaced repetition flashcard web-app. Its main focus is
+  extensibility.

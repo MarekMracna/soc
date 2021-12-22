@@ -1,0 +1,12 @@
+@import "colors.scss";
+
+#welcome {
+    user-select: none;
+    & a {
+	text-decoration: none;
+	color: var(--accent);
+	&:hover {
+	    text-decoration: underline;
+	}
+    }
+}

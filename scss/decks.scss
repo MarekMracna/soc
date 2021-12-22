@@ -1,0 +1,102 @@
+@import "colors.scss";
+
+#decks-tab {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    width: 100%;
+    user-select: none;
+    padding: 0 2rem;
+    min-height: 0; // fix for overflow
+    & section {
+	display: flex;
+	flex-direction: column;
+	min-height: 10rem; // fix for overflow (flexbox assumes min-height: auto;)
+	& ul {
+	    list-style: none;
+	    margin: 0;
+	    padding: 0;
+	}
+	& ul, & table {
+	    width: 100%;
+	}
+	& div, ul {
+	    display: flex;
+	    flex-direction: column;
+	}
+    }
+    & span {
+	margin-bottom: 1rem;
+    }
+}
+
+rule {
+    block-size: 0;
+    padding-left: 1px;
+    padding-top: 1px;
+    margin-block: .5rem;
+    writing-mode: vertical-rl;
+    background: var(--text);
+    opacity: 0.3;
+}
+
+#decks {
+    flex-grow: 1;
+    flex-shrink: 2;
+    & ul {
+	overflow-y: auto;
+    }
+    & ul li {
+	&:hover {
+	    text-decoration: underline;
+	}
+	padding: .5rem;
+    }
+    & ul [current-deck] {
+	font-style: oblique;
+	font-weight: 800;
+    }
+    & span {
+	display: flex;
+	gap: .5rem;
+    }
+}
+
+#cards {
+    flex-grow: 2;
+    flex-shrink: 1;
+    user-select: text;
+    align-items: center;
+    & table {
+	overflow-y: auto;
+	display: grid;
+	grid-template-columns: 1fr 7rem 5rem 1fr;
+	grid-auto-rows: 2rem;
+	padding: 0 1rem;
+	margin: 1rem 0;
+	& th {
+	    position: sticky;
+	    top: 0;
+	    background: var(--bg);
+	    border-bottom: 1px solid var(--text);
+	}
+	& td {
+	    padding: .5rem;
+	    border-top: 1px solid rgba(var(--text-rgb), .5);
+	}
+    }
+    & span {
+	display: flex;
+	gap: .5rem;
+    }
+}
+
+@media screen
+and (max-device-width: 450pt) {
+    #decks-tab {
+	flex-direction: column;
+    }
+    rule {
+	writing-mode: horizontal-tb;
+    }
+}

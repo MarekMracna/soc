@@ -1,0 +1,31 @@
+[theme='light'] {
+  --bg: #fff;
+  --bg2: #ddd;
+  --bg3: #bbb;
+  --text-rgb: 0,0,0;
+  --text: rgb(var(--text-rgb));
+  --accent: #4d3dfc;
+  --accent2: #2d48be;
+  --accent3: #2b398b;
+  --accent-text: #fff; }
+
+[theme='dark'] {
+  --bg: #222;
+  --bg2: #333;
+  --bg3: #555;
+  --text-rgb: 239,239,239;
+  --text: rgb(var(--text-rgb));
+  --accent: #6254f7;
+  --accent2: #4b53cc;
+  --accent3: #334088;
+  --accent-text: #fff; }
+
+#welcome {
+  user-select: none; }
+  #welcome a {
+    text-decoration: none;
+    color: var(--accent); }
+    #welcome a:hover {
+      text-decoration: underline; }
+
+/*# sourceMappingURL=welcome.css.map */
