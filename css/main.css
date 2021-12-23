@@ -182,8 +182,6 @@ spacer {
     padding-left: 0;
     padding-right: 0; }
     #learn-tab ul li {
-      padding-left: 0;
-      padding-right: 0;
       text-align: center; } }
 [theme='light'] {
   --bg: #fff;
