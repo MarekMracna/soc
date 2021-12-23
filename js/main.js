@@ -13,6 +13,8 @@ const Theme = {
     Light: 'light',
 }
 
+const db = window.localStorage
+
 let theme = Theme.Dark
 
 let decks = []
@@ -57,6 +59,18 @@ const card = (front, back) => ({
     times_correct: 0,
 })
 
+function save_to_localstorage() {
+    db.setItem('decks', JSON.stringify(decks))
+    db.setItem('current_deck', JSON.stringify(current_deck.index))
+}
+
+function load_from_localstorage() {
+    decks = JSON.parse(db.getItem('decks')) || []
+    decks.map(d =>
+	d.cards.map(c => c.due = new Date(c.due)))
+    current_deck.index = JSON.parse(db.getItem('current_deck')) || 0
+}
+
 // TODOO: Make export_deck async, it can't pause the UI on big decks
 function export_deck(deck_index) {
     const deck = decks[deck_index]
@@ -79,6 +93,7 @@ function import_deck() {
 		deck.cards = deck.cards.map(c => card(c.front, c.back))
 		decks.push(deck)
 		current_deck.setTo(decks.length-1)
+		save_to_localstorage()
 		navigation.update$()
 	    } catch (e) {
 		console.error("[ERR] Importing deck: couldn't parse")
@@ -95,6 +110,7 @@ function delete_deck(deck_index) {
 	`Do you really want to delete "${decks[deck_index].name}"?`
     ).on$('delete', _e=>{
 	decks = [...decks.slice(0,deck_index), ...decks.slice(deck_index+1)]
+	save_to_localstorage()
 	navigation.update$()
     })
     body.insertBefore(dialog, body.querySelector('main'));
@@ -120,6 +136,7 @@ function edit_card(card_index) {
 	    current_deck.getCards()[card_index].front = front.value
 	    current_deck.getCards()[card_index].back = back.value
 	    current_deck.getCards()[card_index].due = new Date() // if a card is edited, the user should learn it immediately
+	    save_to_localstorage()
 	    navigation.update$()
 	    body.removeChild(dialog)
 	}
@@ -127,6 +144,7 @@ function edit_card(card_index) {
 	let cards = current_deck.getCards()
 	current_deck.getDeck().cards =
 	    [...cards.slice(0,card_index), ...cards.slice(card_index+1)]
+	save_to_localstorage()
 	navigation.update$()
     })
 
@@ -240,6 +258,7 @@ function learn(deck_index) {
 	c.delay *= c.ease
 	let next_review = c.due.getDate() + Math.round(c.delay)
 	c.due.setDate(next_review)
+	save_to_localstorage()
     }
     let card_view = (card, front) => {
 	if (!card) {
@@ -298,6 +317,7 @@ function render() {
 	    decks.push(
 		empty_deck(deck_name.value)
 	    )
+	    save_to_localstorage()
 	    add_deck_view.clear$()
 	    navigation.update$()
 	}
@@ -325,6 +345,7 @@ function render() {
 		card(front.value,
 		     back.value)
 	    )
+	    save_to_localstorage()
 	    add_card_view.clear$()
 	    navigation.update$()
 	}
@@ -418,6 +439,7 @@ function render() {
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
+    load_from_localstorage();
     const body = document.querySelector('body')
     const head = document.querySelector('head')
     head.querySelector('title').innerText = `${APP_NAME}`
