@@ -110,6 +110,9 @@ function delete_deck(deck_index) {
 	`Do you really want to delete "${decks[deck_index].name}"?`
     ).on$('delete', _e=>{
 	decks = [...decks.slice(0,deck_index), ...decks.slice(deck_index+1)]
+	if (current_deck.index === deck_index) {
+	     current_deck.setTo(0)
+	}
 	save_to_localstorage()
 	navigation.update$()
     })
