@@ -203,17 +203,20 @@ function render_cards(cs) {
 	    })]
 }
 
+const today = new Date()
 function learn(deck_index) {
     let view = x => x && body.querySelector('tabs>div').replaceWith(x)
     const deck = decks[deck_index]
-    const today = new Date()
-    let pending_review = deck.cards.filter(c =>
-	c.state == card_state.REVIEW
-	    // && c.due.getYear() == today.getYear()
-	    // && c.due.getMonth() == today.getMonth()
-	    // && c.due.getDate() == today.getDate()
-    )
-    let pending_new = deck.cards.filter(c => c.state == card_state.NEW)
+    let pending_review = deck.cards
+	.filter(c =>
+	    c.state == card_state.REVIEW
+		&& c.due.getYear() == today.getYear()
+		&& c.due.getMonth() == today.getMonth()
+		&& c.due.getDate() == today.getDate())
+	.slice(0, MAX_DAILY_REVIEW_CARDS)
+    let pending_new = deck.cards
+	.filter(c => c.state == card_state.NEW)
+	.slice(0, MAX_DAILY_NEW_CARDS)
     console.log(pending_review)
     console.log(pending_new)
     let reviewed = 0
@@ -410,7 +413,17 @@ function render() {
 		      $.li(
 			  deck.name,
 			  $.spacer(),
-			  "New: " + deck.cards.filter(c=>c.state == card_state.NEW).length
+			  "Review: " + deck.cards
+			      .filter(c =>
+				  c.state == card_state.REVIEW
+				      && c.due.getYear() == today.getYear()
+				      && c.due.getMonth() == today.getMonth()
+				      && c.due.getDate() == today.getDate())
+			      .slice(0, MAX_DAILY_REVIEW_CARDS).length,
+			  "  |  ",
+			  "New: " + deck.cards
+			      .filter(c=>c.state == card_state.NEW)
+			      .slice(0, MAX_DAILY_NEW_CARDS).length
 		      ).click$(_e => learn(i)))
 	      )
           ).att$('id','learn-tab')
