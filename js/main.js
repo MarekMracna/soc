@@ -69,6 +69,10 @@ function load_from_localstorage() {
     decks.map(d =>
 	d.cards.map(c => c.due = new Date(c.due)))
     current_deck.index = JSON.parse(db.getItem('current_deck')) || 0
+    if (db.getItem('new_cards_learned') == undefined)
+	db.setItem('new_cards_learned', 0)
+    if (db.getItem('last_learned') == undefined)
+	db.setItem('last_learned', new Date("1/1/1970/00:00:00"))
 }
 
 // TODOO: Make export_deck async, it can't pause the UI on big decks
@@ -204,20 +208,25 @@ function render_cards(cs) {
 	    })]
 }
 
+function date_YMD(d) {
+    const year = d.getYear()
+    const month = d.getMonth()
+    const day = d.getDate()
+    return day + 100 * month + 10000 * year
+}
+
 const today = new Date()
 function learn(deck_index) {
     let view = x => x && body.querySelector('tabs>div').replaceWith(x)
     const deck = decks[deck_index]
     let pending_review = deck.cards
 	.filter(c =>
-	    c.state == card_state.REVIEW
-		&& c.due.getYear() == today.getYear()
-		&& c.due.getMonth() == today.getMonth()
-		&& c.due.getDate() == today.getDate())
+	    c.state == card_state.REVIEW &&
+		date_YMD(c.due) <= date_YMD(today))
 	.slice(0, MAX_DAILY_REVIEW_CARDS)
     let pending_new = deck.cards
 	.filter(c => c.state == card_state.NEW)
-	.slice(0, MAX_DAILY_NEW_CARDS)
+	.slice(0, MAX_DAILY_NEW_CARDS - db.getItem('new_cards_learned'))
     console.log(pending_review)
     console.log(pending_new)
     let reviewed = 0
@@ -235,6 +244,7 @@ function learn(deck_index) {
 	    } else {
 		let ret = pending_new[curr_new]
 		curr_new++
+		db.setItem('new_cards_learned', JSON.parse(db.getItem('new_cards_learned')) + 1)
 		reviewed++
 		return ret
 	    }
@@ -406,28 +416,31 @@ function render() {
 	      ).att$('id','cards'),
           ).att$('id', 'decks-tab')
     
-    const learn_view = () =>
-          $.div(
-              $.span($.h1(`Welcome to ${APP_NAME}`)),
-	      $.ul(
-		  ...decks.map((deck, i)=>
-		      $.li(
-			  deck.name,
-			  $.spacer(),
-			  "Review: " + deck.cards
-			      .filter(c =>
-				  c.state == card_state.REVIEW
-				      && c.due.getYear() == today.getYear()
-				      && c.due.getMonth() == today.getMonth()
-				      && c.due.getDate() == today.getDate())
-			      .slice(0, MAX_DAILY_REVIEW_CARDS).length,
-			  "  |  ",
-			  "New: " + deck.cards
-			      .filter(c=>c.state == card_state.NEW)
-			      .slice(0, MAX_DAILY_NEW_CARDS).length
-		      ).click$(_e => learn(i)))
-	      )
-          ).att$('id','learn-tab')
+    const learn_view = () => {
+	const last_learned = new Date(db.getItem('last_learned'))
+	if (date_YMD(last_learned) < date_YMD(today))
+	    db.setItem('new_cards_learned', 0)
+	db.setItem('last_learned', today)
+        return $.div(
+            $.span($.h1(`Welcome to ${APP_NAME}`)),
+	    $.ul(
+		...decks.map((deck, i)=>
+		    $.li(
+			deck.name,
+			$.spacer(),
+			"Review: " + deck.cards
+			    .filter(c =>
+				c.state == card_state.REVIEW &&
+				    date_YMD(c.due) <= date_YMD(today))
+			    .slice(0, MAX_DAILY_REVIEW_CARDS).length,
+			"  |  ",
+			"New: " + deck.cards
+			    .filter(c=>c.state == card_state.NEW)
+			    .slice(0, MAX_DAILY_NEW_CARDS - db.getItem('new_cards_learned')).length
+		    ).click$(_e => learn(i)))
+	    )
+        ).att$('id','learn-tab')
+    }
 
     
     
