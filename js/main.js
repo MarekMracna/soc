@@ -77,7 +77,7 @@ function load_from_localstorage() {
 
 // TODOO: Make export_deck async, it can't pause the UI on big decks
 function export_deck(deck_index) {
-    const deck = decks[deck_index]
+    const deck = Object.assign({}, decks[deck_index])
     deck.cards = deck.cards.map(c => ({front: c.front, back: c.back})) // We don't want to export the user's progress
     const json = JSON.stringify(deck)
     const filename = `${APP_NAME}-deck-${deck.name}.json`
