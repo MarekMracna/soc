@@ -83,23 +83,24 @@ function export_deck(deck_index) {
         .click()
 }
 
-function import_deck() {
+function import_deck(json) {
+    try {
+	let deck = JSON.parse(json)
+	deck.cards = deck.cards.map(c => card(c.front, c.back))
+	decks.push(deck)
+	current_deck.setTo(decks.length-1)
+	save_to_localstorage()
+    } catch (e) {
+	console.error("[ERR] Importing deck: couldn't parse")
+	console.error(e)	
+    }
+}
+
+function import_local_deck() {
     const input = $.input().att$('type', 'file').att$('accept', '.json')
     input.click()
     input.addEventListener('change', ()=> {
-        input.files[0].text().then(str => {
-	    try {
-		let deck = JSON.parse(str)
-		deck.cards = deck.cards.map(c => card(c.front, c.back))
-		decks.push(deck)
-		current_deck.setTo(decks.length-1)
-		save_to_localstorage()
-		navigation.update$()
-	    } catch (e) {
-		console.error("[ERR] Importing deck: couldn't parse")
-		console.error(e)	
-	    }
-	})
+        input.files[0].text().then(import_deck).then(() => navigation.update$())
     })
 }
 
@@ -380,7 +381,7 @@ function render() {
 		      $.button("Add deck")
 			  .click$(()=>add_deck()),
 		      $.button("Import deck")
-			  .click$(()=>import_deck()),
+			  .click$(()=>import_local_deck()),
 		  )
 	      ).att$('id', 'decks'),
 	      $.rule(),
@@ -435,7 +436,7 @@ function render() {
 	      $.span($.h1(`Welcome to ${APP_NAME}`)),
 	      $.p($.a("Create").att$('href', $.nohref).click$(_e=>add_deck()),
 		  " a deck or ",
-		  $.a("import").att$('href', $.nohref).click$(_e=>import_deck()),
+		  $.a("import").att$('href', $.nohref).click$(_e=>import_local_deck()),
 		  " one")
 	  ).att$('id','welcome')
 
@@ -455,7 +456,9 @@ function render() {
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
-    load_from_localstorage();
+    load_from_localstorage()
+    if (decks.length == 0)
+	import_deck(default_deck)
     const body = document.querySelector('body')
     const head = document.querySelector('head')
     head.querySelector('title').innerText = `${APP_NAME}`
