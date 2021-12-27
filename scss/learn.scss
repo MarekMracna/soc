@@ -51,6 +51,13 @@
     }
 }
 
+#themeSwitcher {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    
+}
+
 @media screen
 and (max-device-width: 450pt) {
     #learn-tab {

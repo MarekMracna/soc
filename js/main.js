@@ -15,8 +15,6 @@ const Theme = {
 
 const db = window.localStorage
 
-let theme = Theme.Dark
-
 let decks = []
 
 let navigation;
@@ -73,6 +71,7 @@ function load_from_localstorage() {
 	db.setItem('new_cards_learned', 0)
     if (db.getItem('last_learned') == undefined)
 	db.setItem('last_learned', new Date("1/1/1970/00:00:00"))
+    body.setAttribute('theme', db.getItem('theme') || Theme.Dark)
 }
 
 // TODOO: Make export_deck async, it can't pause the UI on big decks
@@ -316,6 +315,16 @@ function learn(deck_index) {
     view(card_view(next_card(), true))
 }
 
+function toggleTheme() {
+    if (body.getAttribute('theme') === Theme.Dark) {
+	body.setAttribute('theme', Theme.Light)
+	db.setItem('theme', Theme.Light)
+    } else {
+	body.setAttribute('theme', Theme.Dark)
+	db.setItem('theme', Theme.Dark)
+    }
+}
+
 function render() {
     const root = $.main()
 
@@ -422,6 +431,7 @@ function render() {
 	    db.setItem('new_cards_learned', 0)
 	db.setItem('last_learned', today)
         return $.div(
+	    $.button("Switch theme").att$('id','themeSwitcher').click$(toggleTheme),
             $.span($.h1(`Welcome to ${APP_NAME}`)),
 	    $.ul(
 		...decks.map((deck, i)=>
@@ -475,6 +485,5 @@ document.addEventListener("DOMContentLoaded", ()=>{
     const body = document.querySelector('body')
     const head = document.querySelector('head')
     head.querySelector('title').innerText = `${APP_NAME}`
-    body.setAttribute('theme', theme)
     body.appendChild(render())
 })
