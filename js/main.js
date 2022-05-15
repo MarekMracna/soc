@@ -1,5 +1,4 @@
-const APP_NAME = "APP_NAME"
-
+const APP_NAME = "Atama"
 const DECKS_TAB = 0
 const LEARN_TAB = 1
 
@@ -226,8 +225,8 @@ function learn(deck_index) {
     let pending_new = deck.cards
 	.filter(c => c.state == card_state.NEW)
 	.slice(0, MAX_DAILY_NEW_CARDS - db.getItem('new_cards_learned'))
-    console.log(pending_review)
-    console.log(pending_new)
+    //console.log(pending_review)
+    //console.log(pending_new)
     let reviewed = 0
     let curr_rev = 0
     let curr_new = 0
